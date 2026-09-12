@@ -1,12 +1,12 @@
 import http from "node:http";
 import { dequery, stripPathSecret } from "./auth.js";
+import { handleConnect } from "./connect.js";
 import { adapterFor, modelsResponse, resolveUpstream } from "./catalog.js";
 import { anthropicMessagesUrl } from "./endpoints.js";
-import { postAnthropic, sseEvent } from "./openai-chat.js";
+import { postAnthropic, postOpenAI, sseEvent, anthropicToOpenAI, streamOpenAIToAnthropic } from "./openai-chat.js";
 import {
   anthropicToResponses,
   postResponses,
-  responsesToAnthropic,
   streamResponsesToAnthropic,
 } from "./openai-responses.js";
 import {
@@ -57,6 +57,7 @@ async function pipeUpstream(res: http.ServerResponse, upstream: Response): Promi
     "cache-control": "no-store",
   };
   res.writeHead(upstream.status, headers);
+  res.flushHeaders();
   if (!upstream.body) {
     res.end();
     return;
@@ -95,9 +96,12 @@ export function createGateway(config: GatewayConfig): http.Server {
       active -= 1;
     }
   });
+  server.on("connect", (req, socket, head) => {
+    handleConnect(req, socket, head);
+  });
   server.keepAliveTimeout = 30_000;
   server.headersTimeout = 15_000;
-  server.requestTimeout = 300_000;
+  server.requestTimeout = 1_800_000;
   return server;
 }
 
@@ -142,7 +146,7 @@ async function handleRequest(
     const requested = typeof body.model === "string" ? body.model : "claude-sonnet-5";
     const route = resolveUpstream(config.profile, requested);
     const adapter = adapterFor(config.profile);
-    const stream = Boolean(body.stream);
+    body.stream = true;
 
     if (adapter === "anthropic") {
       const payload = { ...body, model: route.upstreamModel };
@@ -151,38 +155,19 @@ async function handleRequest(
         payload,
         anthropicMessagesUrl(config.profile.baseUrl),
       );
-      if (stream) {
-        await pipeUpstream(res, upstream);
-        return;
-      }
-      const text = await upstream.text();
-      res.writeHead(upstream.status, {
-        "content-type": upstream.headers.get("content-type") || "application/json",
-        "cache-control": "no-store",
-      });
-      res.end(text);
+      await pipeUpstream(res, upstream);
       return;
     }
 
-    const responsesPayload = anthropicToResponses(
-      { ...body, model: route.upstreamModel },
-      route.upstreamModel,
-    );
-    const upstream = await postResponses(config.profile, responsesPayload);
-    if (!upstream.ok && !stream) {
-      const text = await upstream.text();
-      json(res, 502, {
-        type: "error",
-        error: { type: "api_error", message: `upstream ${upstream.status}`, detail: text.slice(0, 2048) },
-      });
-      return;
-    }
-    if (stream) {
+    if (adapter === "openai-chat") {
+      const payload = anthropicToOpenAI({ ...body, model: route.upstreamModel }, route.upstreamModel);
+      const upstream = await postOpenAI(config.profile, payload);
       res.writeHead(200, {
         "content-type": "text/event-stream; charset=utf-8",
         "cache-control": "no-store",
         connection: "keep-alive",
       });
+      res.flushHeaders();
       if (!upstream.ok) {
         res.write(
           sseEvent("error", {
@@ -193,14 +178,38 @@ async function handleRequest(
         res.end();
         return;
       }
-      await streamResponsesToAnthropic(upstream, requested, (chunk) => {
+      await streamOpenAIToAnthropic(upstream, requested, (chunk) => {
         res.write(chunk);
       });
       res.end();
       return;
     }
-    const parsed = (await upstream.json()) as Record<string, unknown>;
-    json(res, 200, responsesToAnthropic(parsed, requested));
+
+    const responsesPayload = anthropicToResponses(
+      { ...body, model: route.upstreamModel },
+      route.upstreamModel,
+    );
+    const upstream = await postResponses(config.profile, responsesPayload);
+    res.writeHead(200, {
+      "content-type": "text/event-stream; charset=utf-8",
+      "cache-control": "no-store",
+      connection: "keep-alive",
+    });
+    res.flushHeaders();
+    if (!upstream.ok) {
+      res.write(
+        sseEvent("error", {
+          type: "error",
+          error: { type: "api_error", message: `upstream ${upstream.status}` },
+        }),
+      );
+      res.end();
+      return;
+    }
+    await streamResponsesToAnthropic(upstream, requested, (chunk) => {
+      res.write(chunk);
+    });
+    res.end();
     return;
   }
 

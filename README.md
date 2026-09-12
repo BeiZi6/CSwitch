@@ -35,18 +35,18 @@ CSWITCH_API_KEY=... CSWITCH_BASE_URL=https://api.deepseek.com/anthropic \
 
 ## 接到 Claude Science
 
-1. 选择「自定义 Anthropic」或「自定义 OpenAI Responses」，填写 Base URL、API Key，以及默认 / 质量 / 快速 / Fable 四个上游模型。
-2. 点「启动 Claude Science」。CSwitch 会启动网关，并用 `ANTHROPIC_BASE_URL` 拉起本机 `claude-science`。
-3. 在打开的 Science 里选模型；Opus/Sonnet/Haiku 等选择器会走到你填的上游 ID。
+1. 选择「自定义 Anthropic」、「自定义 OpenAI Chat Completions」或「自定义 OpenAI Responses」，填写 Base URL、API Key，以及默认 / 质量 / 快速 / Fable 四个上游模型。
+2. 点「启动 Claude Science」。CSwitch 会启动网关，写入隔离虚拟登录，并用 `ANTHROPIC_BASE_URL` 拉起本机 `claude-science`。
+3. 在打开的 Science 里选模型；列表显示的是你填的上游模型名，官方 Opus/Sonnet/Haiku 选择器也会映射到对应上游 ID。
 
-Windows 会在常见安装目录查找 `claude-science.exe`。找不到时设置 `CSWITCH_SCIENCE_BIN`。CSwitch 不会监听 `0.0.0.0`，也不会使用端口 `8765`。
+Windows 会查找官方安装目录 `%LOCALAPPDATA%\Programs\ClaudeScience\claude-science.exe`，以及带空格的 `Claude Science` 变体和 PATH。找不到时设置 `CSWITCH_SCIENCE_BIN`。打包版会把隔离 data-dir 放在剩余空间更大的盘（通常是安装目录旁的 `sandbox`），避免系统盘空间不足。启动时会在隔离目录写入虚拟登录，Science 只把推理打到 loopback 网关。CSwitch 不会监听 `0.0.0.0`，也不会使用端口 `8765`。
 
 ## 下载
 
 从 [GitHub Releases](https://github.com/BeiZi6/CSwitch/releases/latest) 获取：
 
-- macOS：`CSwitch-0.1.4-arm64.dmg` / `CSwitch-0.1.4.dmg`
-- Windows：`CSwitch_0.1.4_x64-setup.exe`
+- macOS：`CSwitch-0.1.5-arm64.dmg` / `CSwitch-0.1.5.dmg`
+- Windows：`CSwitch_0.1.5_x64-setup.exe`
 - Linux：`.AppImage` 与 `.deb`
 
 当前包未做 Developer ID / Authenticode 签名。macOS 若拦截，请在 Finder 中右键选择打开。

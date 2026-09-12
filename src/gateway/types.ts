@@ -8,9 +8,9 @@ export const SCIENCE_SELECTORS = [
 
 export type ModelRole = "sonnet" | "opus" | "haiku" | "fable";
 
-export type AdapterKind = "anthropic" | "openai-responses";
+export type AdapterKind = "anthropic" | "openai-responses" | "openai-chat";
 
-export type ProviderKind = "anthropic" | "openai-responses";
+export type ProviderKind = "anthropic" | "openai-responses" | "openai-chat";
 
 export interface ProfileModels {
   sonnet: string;
@@ -48,18 +48,22 @@ export const OFFICIAL_DEFAULTS: Record<
     baseUrl: "",
     label: "自定义 OpenAI Responses",
   },
+  "openai-chat": {
+    adapter: "openai-chat",
+    baseUrl: "",
+    label: "自定义 OpenAI Chat Completions",
+  },
 };
 
 const LEGACY_PROVIDERS: Record<string, ProviderKind> = {
   deepseek: "anthropic",
   "anthropic-relay": "anthropic",
   custom: "anthropic",
-  qwen: "openai-responses",
-  "openai-chat": "openai-responses",
+  qwen: "openai-chat",
 };
 
 export function migrateProvider(raw: string | undefined): ProviderKind {
-  if (raw === "anthropic" || raw === "openai-responses") {
+  if (raw === "anthropic" || raw === "openai-responses" || raw === "openai-chat") {
     return raw;
   }
   return LEGACY_PROVIDERS[raw ?? ""] ?? "anthropic";

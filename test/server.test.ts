@@ -137,27 +137,7 @@ test("openai-responses live gateway translates messages and streams", async () =
         }),
       });
       expect(message.status).toBe(200);
-      const payload = (await message.json()) as {
-        content: Array<{ type: string; text?: string }>;
-        stop_reason: string;
-        model: string;
-      };
-      expect(payload.model).toBe("claude-sonnet-5");
-      expect(payload.stop_reason).toBe("end_turn");
-      expect(payload.content[0]?.text).toBe("pong-responses");
-
-      const streamed = await fetch(`${root}/v1/messages`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-5",
-          stream: true,
-          max_tokens: 32,
-          messages: [{ role: "user", content: "ping" }],
-        }),
-      });
-      expect(streamed.status).toBe(200);
-      const sse = await streamed.text();
+      const sse = await message.text();
       expect(sse).toContain("event: message_start");
       expect(sse).toContain("hello");
       expect(sse).toContain("event: message_stop");

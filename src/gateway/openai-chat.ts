@@ -104,7 +104,7 @@ export function anthropicToOpenAI(body: Json, upstreamModel: string): Json {
   const out: Json = {
     model: upstreamModel,
     messages,
-    stream: Boolean(body.stream),
+    stream: true,
   };
   if (typeof body.max_tokens === "number") {
     out.max_tokens = body.max_tokens;
@@ -214,6 +214,7 @@ export async function postOpenAI(profile: Profile, payload: Json): Promise<Respo
     headers: {
       authorization: `Bearer ${profile.apiKey}`,
       "content-type": "application/json",
+      accept: "text/event-stream",
       "user-agent": USER_AGENT,
     },
     body: JSON.stringify(payload),
@@ -232,6 +233,7 @@ export async function postAnthropic(
       authorization: `Bearer ${profile.apiKey}`,
       "anthropic-version": ANTHROPIC_VERSION,
       "content-type": "application/json",
+      accept: payload.stream ? "text/event-stream" : "application/json",
       "user-agent": USER_AGENT,
     },
     body: JSON.stringify(payload),

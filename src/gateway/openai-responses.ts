@@ -94,7 +94,7 @@ export function anthropicToResponses(body: Json, upstreamModel: string): Json {
   const out: Json = {
     model: upstreamModel,
     input: items,
-    stream: Boolean(body.stream),
+    stream: true,
   };
   const instructions = systemPrompt(body.system);
   if (instructions) {
@@ -183,6 +183,7 @@ export async function postResponses(profile: Profile, payload: Json): Promise<Re
     headers: {
       authorization: `Bearer ${profile.apiKey}`,
       "content-type": "application/json",
+      accept: "text/event-stream",
       "user-agent": USER_AGENT,
     },
     body: JSON.stringify(payload),

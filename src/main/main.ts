@@ -9,11 +9,16 @@ import { randomSecret } from "../gateway/auth.js";
 import { listenGateway, scienceBaseUrl, type RunningGateway } from "../gateway/server.js";
 import {
   buildScienceLaunch,
+  pickSandboxHome,
+  proxyOriginFromGatewayUrl,
   resolveScienceBinary,
   startScience,
   stopScience,
+  volumeFreeBytes,
+  writeIsolatedProxyConfig,
   type RunningScience,
 } from "../science/launch.js";
+import { ensureVirtualLogin } from "../science/oauth.js";
 import {
   currentProfile,
   deleteProfile,
@@ -33,6 +38,18 @@ let authSecret = randomSecret();
 
 function dataRoot(): string {
   return join(app.getPath("userData"), "cswitch");
+}
+
+function sandboxHome(): string {
+  const explicit = process.env.CSWITCH_SANDBOX_HOME;
+  if (explicit) {
+    return explicit;
+  }
+  const candidates = [join(dataRoot(), "sandbox", "home")];
+  if (app.isPackaged) {
+    candidates.push(join(dirname(app.getPath("exe")), "sandbox", "home"));
+  }
+  return pickSandboxHome(candidates, volumeFreeBytes);
 }
 
 function readState(): StoredState {
@@ -162,19 +179,25 @@ function registerIpc(): void {
       authSecret,
       profile,
     });
-    const sandboxHome = join(dataRoot(), "sandbox", "home");
-    mkdirSync(join(sandboxHome, "tmp"), { recursive: true });
+    const isolatedHome = sandboxHome();
+    mkdirSync(join(isolatedHome, "tmp"), { recursive: true });
+    if (process.platform === "win32") {
+      mkdirSync(join(isolatedHome, "AppData", "Local"), { recursive: true });
+      mkdirSync(join(isolatedHome, "AppData", "Roaming"), { recursive: true });
+    }
     const previewPort = state.sciencePort === 8763 ? 8992 : state.sciencePort + 2;
     try {
       const spec = buildScienceLaunch({
         binary,
-        sandboxHome,
+        sandboxHome: isolatedHome,
         realHome: homedir(),
         gatewayUrl: scienceBaseUrl(running.port, running.authSecret),
         sciencePort: state.sciencePort,
         previewPort,
         platform: process.platform,
       });
+      writeIsolatedProxyConfig(spec.dataDir, homedir(), proxyOriginFromGatewayUrl(spec.gatewayUrl));
+      ensureVirtualLogin(spec.dataDir, homedir());
       science = await startScience(spec);
       await shell.openExternal(science.url);
     } catch (error) {

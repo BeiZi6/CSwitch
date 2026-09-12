@@ -57,6 +57,7 @@
               Provider
               <select id="provider">
                 <option value="anthropic">自定义 Anthropic</option>
+                <option value="openai-chat">自定义 OpenAI Chat Completions</option>
                 <option value="openai-responses">自定义 OpenAI Responses</option>
               </select>
             </label>
@@ -78,8 +79,9 @@
             <h2>已保存</h2>
             <ul id="profileList"></ul>
             <p class="hint">
-              Science 里会看到 Claude Opus / Sonnet / Haiku 等多个选择器，分别映射到上面四个上游模型。
-              点启动会先开本地网关，再拉起本机已安装的 Claude Science（隔离 data-dir，不碰真实账号目录）。
+              Science 会列出你填的上游模型名（id 仍以 claude- 开头，Science 才认）。
+              Anthropic 兼容填 Messages 根地址；Chat Completions 填 /v1 根地址；Responses 填 Responses 根地址。
+              点启动会写入隔离虚拟登录、打开本地网关，再拉起本机 Claude Science。
               找不到二进制时可设置 <code>CSWITCH_SCIENCE_BIN</code>。
             </p>
           </div>

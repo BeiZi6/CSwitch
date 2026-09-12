@@ -24,7 +24,7 @@ test("anthropic messages become Responses input items", () => {
   );
   expect(payload.model).toBe("gpt-5");
   expect(payload.instructions).toBe("be brief");
-  expect(payload.stream).toBe(false);
+  expect(payload.stream).toBe(true);
   const input = payload.input as Array<Record<string, unknown>>;
   expect(input[0]).toEqual({ role: "user", content: "hi" });
   expect(input[1]).toMatchObject({ type: "function_call", call_id: "call_1", name: "lookup" });
