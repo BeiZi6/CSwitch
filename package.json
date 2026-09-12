@@ -1,7 +1,7 @@
 {
   "name": "cswitch",
   "productName": "CSwitch",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Local Anthropic-compatible gateway for Claude Science",
   "private": true,
   "type": "module",
@@ -17,7 +17,10 @@
     "pack:linux": "npm run build && electron-builder --linux",
     "pack:win-gateway": "bun build --compile --target=bun-windows-x64 src/cli.ts --outfile dist/cswitch-gateway.exe"
   },
-  "author": "BeiZi6",
+  "author": {
+    "name": "BeiZi6",
+    "email": "hitxyshan@163.com"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -85,6 +88,8 @@
     "linux": {
       "icon": "assets/icon.png",
       "category": "Development",
+      "maintainer": "BeiZi6 <hitxyshan@163.com>",
+      "desktopName": "cswitch",
       "target": [
         {
           "target": "AppImage",

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1
+
+- 补全 Linux `.deb` 所需的 maintainer 信息，完成三平台安装包
+
 ## 0.1.0
 
 - 自定义 Anthropic 与自定义 OpenAI Responses 两种配置
