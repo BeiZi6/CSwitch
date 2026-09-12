@@ -8,84 +8,220 @@
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CSwitch</title>
+    <script src="./theme.js"></script>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <div class="shell">
-      <aside>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <symbol id="cs-brand" viewBox="0 0 512 512">
+        <rect width="512" height="512" rx="116" fill="var(--fg)" />
+        <path d="M337.63 165.34A122 122 0 1 0 337.63 346.66" fill="none" stroke="var(--bg)" stroke-width="60" stroke-linecap="round" />
+        <circle cx="378" cy="256" r="34" fill="var(--bg)" />
+      </symbol>
+    </svg>
+    <div class="app">
+      <aside class="sidebar">
         <div class="brand">
-          <img src="./icon.png" alt="" />
+          <svg class="brand-mark" viewBox="0 0 512 512" aria-hidden="true"><use href="#cs-brand" /></svg>
           <div>
-            <strong>CSwitch</strong>
-            <span>本地模型网关</span>
+            <div class="brand-name">CSwitch</div>
+            <div class="brand-sub">本地模型网关</div>
           </div>
         </div>
-        <p class="aside-copy">把第三方 API 转成 Claude Science 能用的 Anthropic 端点。Science 仍是对话客户端。</p>
+        <div class="conn" id="conn">
+          <span class="dot"></span><span id="connText">网关已停止</span>
+        </div>
+        <nav class="nav">
+          <button class="nav-item is-active" type="button" data-view="overview"><span class="idx">01</span>概览</button>
+          <button class="nav-item" type="button" data-view="profiles"><span class="idx">02</span>配置</button>
+          <button class="nav-item" type="button" data-view="logs"><span class="idx">03</span>运行日志</button>
+          <button class="nav-item" type="button" data-view="about"><span class="idx">04</span>关于</button>
+        </nav>
+        <div class="sidebar-foot">
+          <span>v0.1.6 · MIT</span>
+          <a href="https://github.com/BeiZi6/CSwitch" target="_blank" rel="noreferrer">github.com/BeiZi6/CSwitch</a>
+        </div>
       </aside>
-      <main>
-        <header>
-          <div>
-            <p class="eyebrow">模型连接</p>
-            <h1 id="currentName">尚未选择配置</h1>
-            <p id="currentMeta">保存配置后点启动，会打开本机 Claude Science 并走这些模型。</p>
+
+      <main class="main">
+        <header class="topbar">
+          <div class="crumb"><span>控制台</span><span class="sep">/</span><strong id="crumbView">概览</strong></div>
+          <div class="topbar-right">
+            <button class="theme-btn" id="themeBtn" type="button" aria-pressed="false" aria-label="切换到浅色主题">浅色</button>
+            <span class="chip mono" id="currentChip">当前 · —</span>
+            <span class="pill" id="runPill"><span class="dot"></span><span id="runPillText">已停止</span></span>
           </div>
-          <span class="pill" id="runPill">已停止</span>
         </header>
 
-        <section class="hero">
-          <div>
-            <label>Science 使用的地址</label>
-            <code id="endpoint">未启动</code>
-            <label>Claude Science</label>
-            <code id="scienceUrl">未启动</code>
-          </div>
-          <div class="actions">
-            <button class="primary" id="startBtn" type="button">启动 Claude Science</button>
-            <button id="stopBtn" type="button">停止</button>
-            <button id="copyBtn" type="button">复制网关地址</button>
-          </div>
-        </section>
-
-        <p class="error" id="error" hidden></p>
-
-        <section class="grid">
-          <form id="profileForm">
-            <h2>配置</h2>
-            <input type="hidden" id="profileId" />
-            <label>名称<input id="name" required placeholder="DeepSeek 工作配置" /></label>
-            <label>
-              Provider
-              <select id="provider">
-                <option value="anthropic">自定义 Anthropic</option>
-                <option value="openai-chat">自定义 OpenAI Chat Completions</option>
-                <option value="openai-responses">自定义 OpenAI Responses</option>
-              </select>
-            </label>
-            <label>Base URL<input id="baseUrl" placeholder="https://api.example.com" /></label>
-            <label>API Key<input id="apiKey" type="password" autocomplete="off" /></label>
-            <div class="models">
-              <label>默认 / Sonnet<input id="sonnet" required placeholder="Science 均衡模型对应的上游 ID" /></label>
-              <label>质量 / Opus<input id="opus" placeholder="可留空则用默认" /></label>
-              <label>快速 / Haiku<input id="haiku" placeholder="可留空则用默认" /></label>
-              <label>Fable<input id="fable" placeholder="可留空则用默认" /></label>
+        <div class="viewport">
+          <section class="view is-active" id="view-overview">
+            <div class="view-head">
+              <p class="eyebrow">当前配置</p>
+              <h1 class="display" id="currentName">尚未选择配置</h1>
+              <p class="lead" id="currentMeta">保存配置后点启动，会打开本机 Claude Science 并走这些模型。</p>
             </div>
-            <div class="actions">
-              <button class="primary" type="submit">保存并设为当前</button>
-              <button id="deleteBtn" type="button">删除</button>
+            <div class="card">
+              <div class="card-head">
+                <h2>网关状态</h2>
+                <span class="sub mono" id="portLabel">PORT 19191</span>
+              </div>
+              <div class="alert" id="error" hidden><span class="mark">!</span><span id="errorText"></span></div>
+              <div class="addr">
+                <div class="addr-label">Science 使用的地址 · Anthropic 网关</div>
+                <div class="addr-row">
+                  <code id="endpoint" class="is-empty">未启动</code>
+                  <button class="btn btn-ghost" id="copyBtn" type="button" disabled>复制</button>
+                </div>
+              </div>
+              <div class="addr">
+                <div class="addr-label">Claude Science</div>
+                <div class="addr-row">
+                  <code id="scienceUrl" class="is-empty">未启动</code>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary" id="powerBtn" type="button">启动 Claude Science</button>
+              </div>
             </div>
-          </form>
+            <div class="stat-grid">
+              <div class="stat"><div class="stat-val" id="statProvider">—</div><div class="stat-key">上游服务</div></div>
+              <div class="stat"><div class="stat-val" id="statModels">—</div><div class="stat-key">模型映射</div></div>
+              <div class="stat"><div class="stat-val" id="statPort">19191</div><div class="stat-key">网关端口</div></div>
+            </div>
+            <div class="card">
+              <div class="card-head"><h2>快速开始</h2><span class="sub mono">3 STEPS</span></div>
+              <div class="steps">
+                <div class="step" id="step1">
+                  <div class="step-num">01</div>
+                  <div><h3>保存配置</h3><p>填写上游地址、密钥，并把 Science 的 Sonnet / Opus / Haiku / Fable 映射到上游模型 ID。</p></div>
+                </div>
+                <div class="step" id="step2">
+                  <div class="step-num">02</div>
+                  <div><h3>启动网关</h3><p>写入隔离虚拟登录，在本机拉起 Anthropic 兼容端点，并生成带密钥的访问地址。</p></div>
+                </div>
+                <div class="step" id="step3">
+                  <div class="step-num">03</div>
+                  <div><h3>打开 Science</h3><p>自动启动本机 Claude Science 并指向网关；Science 仍是你的对话客户端。</p></div>
+                </div>
+              </div>
+            </div>
+          </section>
 
-          <div>
-            <h2>已保存</h2>
-            <ul id="profileList"></ul>
-            <p class="hint">
-              Science 会列出你填的上游模型名（id 仍以 claude- 开头，Science 才认）。
-              Anthropic 兼容填 Messages 根地址；Chat Completions 填 /v1 根地址；Responses 填 Responses 根地址。
-              点启动会写入隔离虚拟登录、打开本地网关，再拉起本机 Claude Science。
-              找不到二进制时可设置 <code>CSWITCH_SCIENCE_BIN</code>。
-            </p>
-          </div>
-        </section>
+          <section class="view" id="view-profiles">
+            <div class="view-head">
+              <p class="eyebrow">配置</p>
+              <h1 class="display">连接与模型映射</h1>
+              <p class="lead">每个配置保存一组上游服务、密钥与模型映射。启动时使用「当前」配置。</p>
+            </div>
+            <div class="split">
+              <form class="card" id="profileForm">
+                <div class="card-head">
+                  <h2 id="formTitle">编辑配置</h2>
+                  <button class="btn btn-text" id="newBtn" type="button">新建</button>
+                </div>
+                <div class="alert" id="formAlert" hidden><span class="mark">!</span><span id="formAlertText"></span></div>
+                <input type="hidden" id="profileId" />
+                <div class="form-grid">
+                  <div class="field full">
+                    <label for="name">名称</label>
+                    <input class="input" id="name" autocomplete="off" placeholder="DeepSeek 工作配置" />
+                  </div>
+                  <div class="field full">
+                    <label for="provider">Provider</label>
+                    <select class="input" id="provider">
+                      <option value="anthropic">自定义 Anthropic</option>
+                      <option value="openai-chat">自定义 OpenAI Chat Completions</option>
+                      <option value="openai-responses">自定义 OpenAI Responses</option>
+                    </select>
+                  </div>
+                  <div class="field full">
+                    <label for="baseUrl">Base URL</label>
+                    <input class="input mono" id="baseUrl" autocomplete="off" placeholder="https://api.example.com" />
+                  </div>
+                  <div class="field full">
+                    <label for="apiKey">API Key</label>
+                    <input class="input mono" id="apiKey" type="password" autocomplete="off" placeholder="必须填写" />
+                  </div>
+                  <div class="field full"><label>模型映射</label></div>
+                  <div class="field">
+                    <label for="sonnet">默认 / Sonnet</label>
+                    <input class="input mono" id="sonnet" required placeholder="Science 均衡模型对应的上游 ID" />
+                  </div>
+                  <div class="field">
+                    <label for="opus">质量 / Opus</label>
+                    <input class="input mono" id="opus" placeholder="可留空则用默认" />
+                  </div>
+                  <div class="field">
+                    <label for="haiku">快速 / Haiku</label>
+                    <input class="input mono" id="haiku" placeholder="可留空则用默认" />
+                  </div>
+                  <div class="field">
+                    <label for="fable">Fable</label>
+                    <input class="input mono" id="fable" placeholder="可留空则用默认" />
+                  </div>
+                </div>
+                <div class="hint" id="providerHint"></div>
+                <div class="form-actions">
+                  <button class="btn btn-primary" type="submit">保存并设为当前</button>
+                  <button class="btn btn-ghost" id="deleteBtn" type="button">删除配置</button>
+                </div>
+              </form>
+              <div class="card">
+                <div class="card-head"><h2>已保存</h2><span class="sub mono" id="profileCount">0 个</span></div>
+                <div class="list" id="profileList"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="view" id="view-logs">
+            <div class="view-head">
+              <p class="eyebrow">运行日志</p>
+              <h1 class="display">本机活动</h1>
+              <p class="lead">记录控制台内触发的操作：保存配置、启停网关、复制地址。</p>
+            </div>
+            <div class="card">
+              <div class="card-head">
+                <h2>活动日志</h2>
+                <button class="btn btn-ghost" id="clearLogs" type="button">清空</button>
+              </div>
+              <ol class="log-list" id="logList"></ol>
+            </div>
+          </section>
+
+          <section class="view" id="view-about">
+            <div class="view-head">
+              <p class="eyebrow">关于</p>
+              <h1 class="display">CSwitch</h1>
+              <p class="lead">把第三方 API 转成 Claude Science 能用的 Anthropic 端点。</p>
+            </div>
+            <div class="card">
+              <div class="identity">
+                <svg class="brand-mark" viewBox="0 0 512 512" aria-hidden="true"><use href="#cs-brand" /></svg>
+                <div>
+                  <h2>CSwitch · 本地模型网关</h2>
+                  <p>Science 仍是对话客户端；CSwitch 只在本机做协议转换与模型映射。</p>
+                </div>
+              </div>
+            </div>
+            <div class="spec">
+              <div class="spec-row"><span class="spec-k">版本</span><span class="spec-v mono">0.1.6</span></div>
+              <div class="spec-row"><span class="spec-k">作者</span><span class="spec-v">BeiZi6</span></div>
+              <div class="spec-row"><span class="spec-k">协议</span><span class="spec-v">MIT</span></div>
+              <div class="spec-row"><span class="spec-k">仓库</span><span class="spec-v"><a href="https://github.com/BeiZi6/CSwitch" target="_blank" rel="noreferrer">github.com/BeiZi6/CSwitch</a></span></div>
+              <div class="spec-row"><span class="spec-k">网关端口</span><span class="spec-v mono">19191（默认）</span></div>
+              <div class="spec-row"><span class="spec-k">Science 端口</span><span class="spec-v mono">8990（默认）</span></div>
+              <div class="spec-row"><span class="spec-k">环境变量</span><span class="spec-v mono">CSWITCH_SCIENCE_BIN</span></div>
+            </div>
+            <div class="card">
+              <div class="card-head"><h2>工作原理</h2></div>
+              <div class="steps">
+                <div class="step"><div class="step-num">01</div><div><h3>协议适配</h3><p>按 Provider 把 Anthropic Messages 请求转换为上游格式，并流式转回 Anthropic 事件。</p></div></div>
+                <div class="step"><div class="step-num">02</div><div><h3>模型映射</h3><p>Science 里的 claude-* 名称映射到你填写的上游模型 ID，Science 才会正常识别。</p></div></div>
+                <div class="step"><div class="step-num">03</div><div><h3>隔离登录</h3><p>启动时写入隔离的虚拟登录与代理配置，不污染你现有的 Science 环境。</p></div></div>
+              </div>
+            </div>
+          </section>
+        </div>
       </main>
     </div>
     <script type="module" src="./app.js"></script>

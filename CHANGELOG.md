@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.6
+
+- 桌面控制台换成新品牌界面：近黑画布、CSwitch 标识、概览 / 配置 / 日志 / 关于
+- 应用图标换成新 Logo（Windows / macOS / Linux 安装包）
+- 支持浅色 / 深色切换；保存配置后设为当前
+
 ## 0.1.5
 
 - 修复 Windows 找不到官方安装：实际目录是 `%LOCALAPPDATA%\Programs\ClaudeScience`，不再只找带空格的 `Claude Science`；同时回退搜索 PATH

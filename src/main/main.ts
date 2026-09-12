@@ -109,12 +109,12 @@ function snapshot(state = readState()) {
 
 async function createWindow(): Promise<void> {
   windowRef = new BrowserWindow({
-    width: 920,
-    height: 650,
-    minWidth: 760,
-    minHeight: 520,
+    width: 1120,
+    height: 760,
+    minWidth: 880,
+    minHeight: 600,
     title: "CSwitch",
-    backgroundColor: "#eee7dc",
+    backgroundColor: "#1f2228",
     webPreferences: {
       preload: join(here, "preload.cjs"),
       contextIsolation: true,

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="CSwitch 应用图标">
+  <title>CSwitch 应用图标</title>
+  <rect width="512" height="512" rx="116" fill="#1f2228"/>
+  <g fill="none" stroke="#ffffff" stroke-width="60" stroke-linecap="round">
+    <path d="M337.63 165.34 A122 122 0 1 0 337.63 346.66"/>
+  </g>
+  <circle cx="378" cy="256" r="34" fill="#ffffff"/>
+</svg>
