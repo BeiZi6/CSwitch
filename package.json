@@ -1,0 +1,105 @@
+{
+  "name": "cswitch",
+  "productName": "CSwitch",
+  "version": "0.1.0",
+  "description": "Local Anthropic-compatible gateway for Claude Science",
+  "private": true,
+  "type": "module",
+  "main": "dist/main/main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node scripts/copy-static.mjs",
+    "dev": "npm run build && electron .",
+    "start": "electron .",
+    "test": "bun test test",
+    "gateway": "npm run build && node dist/cli.js",
+    "pack:mac": "npm run build && electron-builder --mac",
+    "pack:win": "npm run build && electron-builder --win nsis --x64",
+    "pack:linux": "npm run build && electron-builder --linux",
+    "pack:win-gateway": "bun build --compile --target=bun-windows-x64 src/cli.ts --outfile dist/cswitch-gateway.exe"
+  },
+  "author": "BeiZi6",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BeiZi6/CSwitch.git"
+  },
+  "bugs": {
+    "url": "https://github.com/BeiZi6/CSwitch/issues"
+  },
+  "homepage": "https://github.com/BeiZi6/CSwitch#readme",
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "electron": "^37.4.0",
+    "electron-builder": "^26.0.12",
+    "typescript": "^5.9.2"
+  },
+  "build": {
+    "appId": "com.cswitch.desktop",
+    "productName": "CSwitch",
+    "copyright": "MIT",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "assets/icon.png",
+      "!dist/**/*.exe"
+    ],
+    "publish": {
+      "provider": "github",
+      "owner": "BeiZi6",
+      "repo": "CSwitch",
+      "releaseType": "release"
+    },
+    "extraResources": [
+      {
+        "from": "assets/icon.png",
+        "to": "icon.png"
+      }
+    ],
+    "mac": {
+      "icon": "assets/icon.icns",
+      "category": "public.app-category.developer-tools",
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false,
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["arm64", "x64"]
+        },
+        {
+          "target": "zip",
+          "arch": ["arm64", "x64"]
+        }
+      ]
+    },
+    "win": {
+      "icon": "assets/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "linux": {
+      "icon": "assets/icon.png",
+      "category": "Development",
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": ["x64"]
+        },
+        {
+          "target": "deb",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "CSwitch_${version}_x64-setup.exe"
+    }
+  }
+}

@@ -1,0 +1,9 @@
+# Changelog
+
+## 0.1.0
+
+- 自定义 Anthropic 与自定义 OpenAI Responses 两种配置
+- Science 的 Sonnet / Opus / Haiku / Fable 映射到四个上游模型
+- 默认网关端口 `19191`（loopback，带 path secret）
+- 启动时拉起本机 Claude Science，使用隔离 data-dir
+- macOS / Windows / Linux 桌面包

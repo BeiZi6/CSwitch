@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CSwitch</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <aside>
+        <div class="brand">
+          <img src="./icon.png" alt="" />
+          <div>
+            <strong>CSwitch</strong>
+            <span>本地模型网关</span>
+          </div>
+        </div>
+        <p class="aside-copy">把第三方 API 转成 Claude Science 能用的 Anthropic 端点。Science 仍是对话客户端。</p>
+      </aside>
+      <main>
+        <header>
+          <div>
+            <p class="eyebrow">模型连接</p>
+            <h1 id="currentName">尚未选择配置</h1>
+            <p id="currentMeta">保存配置后点启动，会打开本机 Claude Science 并走这些模型。</p>
+          </div>
+          <span class="pill" id="runPill">已停止</span>
+        </header>
+
+        <section class="hero">
+          <div>
+            <label>Science 使用的地址</label>
+            <code id="endpoint">未启动</code>
+            <label>Claude Science</label>
+            <code id="scienceUrl">未启动</code>
+          </div>
+          <div class="actions">
+            <button class="primary" id="startBtn" type="button">启动 Claude Science</button>
+            <button id="stopBtn" type="button">停止</button>
+            <button id="copyBtn" type="button">复制网关地址</button>
+          </div>
+        </section>
+
+        <p class="error" id="error" hidden></p>
+
+        <section class="grid">
+          <form id="profileForm">
+            <h2>配置</h2>
+            <input type="hidden" id="profileId" />
+            <label>名称<input id="name" required placeholder="DeepSeek 工作配置" /></label>
+            <label>
+              Provider
+              <select id="provider">
+                <option value="anthropic">自定义 Anthropic</option>
+                <option value="openai-responses">自定义 OpenAI Responses</option>
+              </select>
+            </label>
+            <label>Base URL<input id="baseUrl" placeholder="https://api.example.com" /></label>
+            <label>API Key<input id="apiKey" type="password" autocomplete="off" /></label>
+            <div class="models">
+              <label>默认 / Sonnet<input id="sonnet" required placeholder="Science 均衡模型对应的上游 ID" /></label>
+              <label>质量 / Opus<input id="opus" placeholder="可留空则用默认" /></label>
+              <label>快速 / Haiku<input id="haiku" placeholder="可留空则用默认" /></label>
+              <label>Fable<input id="fable" placeholder="可留空则用默认" /></label>
+            </div>
+            <div class="actions">
+              <button class="primary" type="submit">保存并设为当前</button>
+              <button id="deleteBtn" type="button">删除</button>
+            </div>
+          </form>
+
+          <div>
+            <h2>已保存</h2>
+            <ul id="profileList"></ul>
+            <p class="hint">
+              Science 里会看到 Claude Opus / Sonnet / Haiku 等多个选择器，分别映射到上面四个上游模型。
+              点启动会先开本地网关，再拉起本机已安装的 Claude Science（隔离 data-dir，不碰真实账号目录）。
+              找不到二进制时可设置 <code>CSWITCH_SCIENCE_BIN</code>。
+            </p>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
