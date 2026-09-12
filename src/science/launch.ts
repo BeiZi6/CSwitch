@@ -1,7 +1,7 @@
 import { spawn, type ChildProcess } from "node:child_process";
 import { existsSync, mkdirSync, statfsSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, posix, resolve, win32 } from "node:path";
 
 const FORBIDDEN_PORT = 8765;
 
@@ -37,15 +37,19 @@ function pathDirs(platform: NodeJS.Platform, env: NodeJS.Dict<string>): string[]
     .filter(Boolean);
 }
 
+function joinOs(platform: NodeJS.Platform, ...parts: string[]): string {
+  return (platform === "win32" ? win32 : posix).join(...parts);
+}
+
 function windowsInstallRoots(env: NodeJS.Dict<string>): string[] {
   const local = env.LOCALAPPDATA || "";
   const pf = env.ProgramFiles || "C:\\Program Files";
   const pf86 = env["ProgramFiles(x86)"] || "C:\\Program Files (x86)";
-  const bases = [join(local, "Programs"), local, join(local, "Anthropic"), pf, pf86];
+  const bases = [joinOs("win32", local, "Programs"), local, joinOs("win32", local, "Anthropic"), pf, pf86];
   const roots: string[] = [];
   for (const base of bases) {
     for (const product of WINDOWS_PRODUCT_DIRS) {
-      roots.push(join(base, product), join(base, product, "resources", "bin"));
+      roots.push(joinOs("win32", base, product), joinOs("win32", base, product, "resources", "bin"));
     }
   }
   return roots;
@@ -77,7 +81,7 @@ export function candidateScienceBins(
       "/Applications/ClaudeScience.app/Contents/MacOS",
     );
   } else {
-    roots.push("/usr/local/bin", "/usr/bin", join(env.HOME || homedir(), ".local", "bin"));
+    roots.push("/usr/local/bin", "/usr/bin", joinOs("linux", env.HOME || homedir(), ".local", "bin"));
   }
   roots.push(...pathDirs(platform, env));
   const out: string[] = [];
@@ -86,7 +90,7 @@ export function candidateScienceBins(
   }
   for (const root of roots) {
     for (const name of names) {
-      pushUnique(out, join(root, name));
+      pushUnique(out, joinOs(platform, root, name));
     }
   }
   return out;
