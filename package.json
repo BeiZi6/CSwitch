@@ -89,7 +89,6 @@
       "icon": "assets/icon.png",
       "category": "Development",
       "maintainer": "BeiZi6 <hitxyshan@163.com>",
-      "desktopName": "cswitch",
       "target": [
         {
           "target": "AppImage",
