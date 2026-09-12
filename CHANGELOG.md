@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.3
+
+- 发布流水线改为串行上传，避免 Windows/macOS 安装包在 GitHub Release 里丢失
+
 ## 0.1.2
 
 - 修复 Windows 安装包里桌面桥接未加载：保存配置时报 `Cannot read properties of undefined (reading 'status')`
