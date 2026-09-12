@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.4
+
+- 发布改为先收集三平台制品再统一上传，保证 Windows 安装包会出现在 Release 里
+
 ## 0.1.3
 
 - 发布流水线改为串行上传，避免 Windows/macOS 安装包在 GitHub Release 里丢失
