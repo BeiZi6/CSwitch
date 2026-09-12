@@ -45,8 +45,8 @@ Windows 会在常见安装目录查找 `claude-science.exe`。找不到时设置
 
 从 [GitHub Releases](https://github.com/BeiZi6/CSwitch/releases/latest) 获取：
 
-- macOS：`CSwitch-0.1.1-arm64.dmg` / `CSwitch-0.1.1.dmg`
-- Windows：`CSwitch_0.1.1_x64-setup.exe`
+- macOS：`CSwitch-0.1.2-arm64.dmg` / `CSwitch-0.1.2.dmg`
+- Windows：`CSwitch_0.1.2_x64-setup.exe`
 - Linux：`.AppImage` 与 `.deb`
 
 当前包未做 Developer ID / Authenticode 签名。macOS 若拦截，请在 Finder 中右键选择打开。

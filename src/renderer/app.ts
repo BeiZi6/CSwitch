@@ -1,3 +1,5 @@
+import { requireBridge } from "./bridge.js";
+
 type Snapshot = {
   port: number;
   currentId: string | null;
@@ -20,7 +22,7 @@ type Snapshot = {
 
 declare global {
   interface Window {
-    cswitch: {
+    cswitch?: {
       listProfiles(): Promise<Snapshot>;
       saveProfile(profile: unknown): Promise<Snapshot>;
       deleteProfile(id: string): Promise<Snapshot>;
@@ -30,6 +32,10 @@ declare global {
       status(): Promise<Snapshot>;
     };
   }
+}
+
+function api() {
+  return requireBridge(window.cswitch);
 }
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
@@ -65,7 +71,7 @@ function fillForm(snapshot: Snapshot): void {
     button.classList.toggle("current", profile.id === snapshot.currentId);
     button.addEventListener("click", async () => {
       try {
-        render(await window.cswitch.setCurrent(profile.id));
+        render(await api().setCurrent(profile.id));
         field("profileId").value = profile.id;
         field("name").value = profile.name;
         field("provider").value = profile.provider;
@@ -91,17 +97,17 @@ function render(snapshot: Snapshot): void {
 }
 
 async function refresh(): Promise<void> {
-  render(await window.cswitch.status());
+  render(await api().status());
 }
 
 $("profileForm").addEventListener("submit", async (event) => {
   event.preventDefault();
   try {
-    const current = (await window.cswitch.status()).profiles.find(
+    const current = (await api().status()).profiles.find(
       (item) => item.id === field("profileId").value,
     );
     render(
-      await window.cswitch.saveProfile({
+      await api().saveProfile({
         id: field("profileId").value || undefined,
         name: field("name").value,
         provider: field("provider").value,
@@ -126,7 +132,7 @@ $("deleteBtn").addEventListener("click", async () => {
     return;
   }
   try {
-    render(await window.cswitch.deleteProfile(id));
+    render(await api().deleteProfile(id));
     ($("profileForm") as HTMLFormElement).reset();
     field("profileId").value = "";
   } catch (error) {
@@ -136,7 +142,7 @@ $("deleteBtn").addEventListener("click", async () => {
 
 $("startBtn").addEventListener("click", async () => {
   try {
-    render(await window.cswitch.start());
+    render(await api().start());
   } catch (error) {
     showError(error instanceof Error ? error.message : String(error));
   }
@@ -144,7 +150,7 @@ $("startBtn").addEventListener("click", async () => {
 
 $("stopBtn").addEventListener("click", async () => {
   try {
-    render(await window.cswitch.stop());
+    render(await api().stop());
   } catch (error) {
     showError(error instanceof Error ? error.message : String(error));
   }
@@ -157,4 +163,6 @@ $("copyBtn").addEventListener("click", async () => {
   }
 });
 
-void refresh();
+void refresh().catch((error) => {
+  showError(error instanceof Error ? error.message : String(error));
+});

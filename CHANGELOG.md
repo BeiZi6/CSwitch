@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2
+
+- 修复 Windows 安装包里桌面桥接未加载：保存配置时报 `Cannot read properties of undefined (reading 'status')`
+
 ## 0.1.1
 
 - 补全 Linux `.deb` 所需的 maintainer 信息，完成三平台安装包

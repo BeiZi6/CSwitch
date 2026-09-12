@@ -1,7 +1,10 @@
 import { app, BrowserWindow, ipcMain, safeStorage, shell } from "electron";
 import { mkdirSync } from "node:fs";
 import { homedir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const here = import.meta.dirname ?? dirname(fileURLToPath(import.meta.url));
 import { randomSecret } from "../gateway/auth.js";
 import { listenGateway, scienceBaseUrl, type RunningGateway } from "../gateway/server.js";
 import {
@@ -96,14 +99,14 @@ async function createWindow(): Promise<void> {
     title: "CSwitch",
     backgroundColor: "#eee7dc",
     webPreferences: {
-      preload: join(import.meta.dirname, "preload.js"),
+      preload: join(here, "preload.cjs"),
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
     },
   });
   windowRef.removeMenu();
-  await windowRef.loadFile(join(import.meta.dirname, "../renderer/index.html"));
+  await windowRef.loadFile(join(here, "../renderer/index.html"));
   windowRef.webContents.setWindowOpenHandler(({ url }) => {
     void shell.openExternal(url);
     return { action: "deny" };
