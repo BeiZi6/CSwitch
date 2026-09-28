@@ -17,7 +17,7 @@
 
 ## 能做什么
 
-- 两种配置：自定义 Anthropic，或自定义 OpenAI Responses
+- 三种配置：自定义 Anthropic、自定义 OpenAI Chat Completions，或自定义 OpenAI Responses
 - 把 Science 里的 Claude Opus / Sonnet / Haiku / Fable 选择器映射到四个上游模型 ID
 - 点「启动 Claude Science」：先开 loopback 网关，再拉起本机已安装的 Claude Science
 - Science 使用隔离 data-dir，不读写真实 `~/.claude-science`
