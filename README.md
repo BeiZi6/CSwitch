@@ -6,9 +6,18 @@
 
 这不是 CSSwitch 的 Windows 移植，也不启动、停止或读取真实 `~/.claude-science`。
 
+## Overview (English)
+
+**CSwitch** lets Claude Science run on third-party model APIs. It starts a local Anthropic-compatible gateway and launches Claude Science against it with an isolated data directory, so your real `~/.claude-science` is never touched.
+
+- **Problem:** Claude Science speaks the Anthropic Messages API, so teams on other providers cannot point it at the models they already pay for.
+- **How it works:** a loopback-only gateway serves `/v1/models` and `/v1/messages` and translates requests, including SSE streaming, to Anthropic-compatible, OpenAI Chat Completions or OpenAI Responses upstreams. Science's Opus / Sonnet / Haiku / Fable picker maps to four upstream model IDs.
+- **Built with:** Electron + TypeScript, a headless gateway mode for scripting, and 10 test suites covering the gateway, protocol translation, the Science launcher and the UI.
+- **Status:** v0.1.6 installers for macOS (arm64 / x64), Windows (x64) and Linux (AppImage / deb) on [Releases](https://github.com/BeiZi6/CSwitch/releases/latest); not yet code-signed.
+
 ## 能做什么
 
-- 两种配置：自定义 Anthropic，或自定义 OpenAI Responses
+- 三种配置：自定义 Anthropic、自定义 OpenAI Chat Completions，或自定义 OpenAI Responses
 - 把 Science 里的 Claude Opus / Sonnet / Haiku / Fable 选择器映射到四个上游模型 ID
 - 点「启动 Claude Science」：先开 loopback 网关，再拉起本机已安装的 Claude Science
 - Science 使用隔离 data-dir，不读写真实 `~/.claude-science`
